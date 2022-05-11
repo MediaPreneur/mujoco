@@ -45,14 +45,11 @@ def _is_valid_integral_type(type_str: str):
     else:
       return False
 
-  if (counter['signed'] + counter['unsigned'] > 1 or
-      counter['short'] > 1 or counter['long'] > 2 or
-      (counter['short'] and counter['long']) or
-      ((counter['short'] or counter['long']) and counter['char']) or
-      counter['char'] + counter['int'] + wildcard_counter > 1):
-    return False
-  else:
-    return True
+  return (counter['signed'] + counter['unsigned'] <= 1
+          and counter['short'] <= 1 and counter['long'] <= 2
+          and (not counter['short'] or not counter['long']) and
+          (not counter['short'] and not counter['long'] or not counter['char'])
+          and counter['char'] + counter['int'] + wildcard_counter <= 1)
 
 
 @dataclasses.dataclass

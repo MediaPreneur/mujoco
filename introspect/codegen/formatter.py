@@ -97,10 +97,10 @@ class _Formatter:
         self._add_line(single_line)
         return
 
-    self._add_line(obj.__class__.__name__ + '(')
+    self._add_line(f'{obj.__class__.__name__}(')
     with self._indent():
       for k, v in kv_pairs:
-        self._add_line(k.name + '=', no_break=True)
+        self._add_line(f'{k.name}=', no_break=True)
         with self._append_at_end(','):
           self.add(v)
     self._add_line(')')

@@ -92,11 +92,8 @@ class MjFunctionVisitor:
     kind = node.get('kind')
     if kind == 'TextComment':
       return node['text'].replace('\N{NO-BREAK SPACE}', '&nbsp;')
-    else:
-      strings = []
-      for child in node['inner']:
-        strings.append(self._make_comment(child))
-      return ''.join(strings)
+    strings = [self._make_comment(child) for child in node['inner']]
+    return ''.join(strings)
 
   def visit(self, node: ClangJsonNode) -> None:
     if (node.get('kind') == 'FunctionDecl' and

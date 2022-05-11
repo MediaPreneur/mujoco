@@ -171,15 +171,14 @@ def _ensure_2d(arg):
 def _ensure_3d(arg):
   if arg is None:
     return None
-  else:
-    # np.atleast_3d adds both leading and trailing dims, we want only leading
-    if arg.ndim == 0:
-      arg = arg[np.newaxis, np.newaxis, np.newaxis, ...]
-    elif arg.ndim == 1:
-      arg = arg[np.newaxis, np.newaxis, ...]
-    elif arg.ndim == 2:
-      arg = arg[np.newaxis, ...]
-    return np.ascontiguousarray(arg, dtype=np.float64)
+  # np.atleast_3d adds both leading and trailing dims, we want only leading
+  if arg.ndim == 0:
+    arg = arg[np.newaxis, np.newaxis, np.newaxis, ...]
+  elif arg.ndim == 1:
+    arg = arg[np.newaxis, np.newaxis, ...]
+  elif arg.ndim == 2:
+    arg = arg[np.newaxis, ...]
+  return np.ascontiguousarray(arg, dtype=np.float64)
 
 def _infer_dimension(dim, value, **kwargs):
   for name, array in kwargs.items():

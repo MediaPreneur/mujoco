@@ -116,8 +116,7 @@ def parse_cmake_args_from_environ(env_var_name=MUJOCO_CMAKE_ARGS):
   for part in parts:
     for k, v in placeholders.items():
       part = part.replace(k, v)
-    part = part.replace('\\"', '"').replace("\\'", "'")
-    if part:
+    if part := part.replace('\\"', '"').replace("\\'", "'"):
       out.append(part)
   return out
 

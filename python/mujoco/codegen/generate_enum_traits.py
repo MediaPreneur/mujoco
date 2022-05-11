@@ -30,9 +30,9 @@ def main(argv: Sequence[str]) -> None:
 
   struct_decls = []
   for enum in ENUMS.values():
-    value_decls = []
-    for k in enum.values:
-      value_decls.append(f'std::make_pair("{k}", ::{enum.name}::{k})')
+    value_decls = [
+        f'std::make_pair("{k}", ::{enum.name}::{k})' for k in enum.values
+    ]
     if len(value_decls) < 2:
       value_decls = ''.join(value_decls)
     else:

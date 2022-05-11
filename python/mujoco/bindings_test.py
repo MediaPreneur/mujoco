@@ -264,7 +264,7 @@ class MuJoCoBindingsTest(parameterized.TestCase):
   def test_mjmodel_can_access_names_directly(self):
     # mjModel offers direct access to names array, to allow usecases other than
     # id2name
-    model_name = str(self.model.names[0:self.model.names.find(b'\0')], 'utf-8')
+    model_name = str(self.model.names[:self.model.names.find(b'\0')], 'utf-8')
     self.assertEqual(model_name, 'test')
 
     start_index = self.model.name_geomadr[0]
@@ -363,9 +363,7 @@ class MuJoCoBindingsTest(parameterized.TestCase):
   def test_mjcontact_can_copy(self):
     mujoco.mj_forward(self.model, self.data)
 
-    contact_copy = []
-    for i in range(4):
-      contact_copy.append(copy.copy(self.data.contact[i]))
+    contact_copy = [copy.copy(self.data.contact[i]) for i in range(4)]
     # Sort contacts in anticlockwise order
     contact_copy = sorted(
         contact_copy, key=lambda x: np.arctan2(x.pos[1], x.pos[0]))
@@ -960,8 +958,7 @@ Euler integrator, semi-implicit in velocity.
         else:
           self.assertEqual(actual_value, expected_value)
       except AssertionError as e:
-        self.fail("Attribute '{}' differs from expected value: {}".format(
-            name, str(e)))
+        self.fail(f"Attribute '{name}' differs from expected value: {str(e)}")
 
 if __name__ == '__main__':
   absltest.main()

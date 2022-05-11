@@ -451,7 +451,7 @@ def step(model, data, state, **kwargs):
   return (get_state(data), data.sensordata)
 
 def single_rollout(model, data, initial_state, **kwargs):
-  arg_nstep = set([a.shape[0] for a in kwargs.values()])
+  arg_nstep = {a.shape[0] for a in kwargs.values()}
   assert len(arg_nstep) == 1  # nstep dimensions must match
   nstep = arg_nstep.pop()
 
@@ -460,9 +460,10 @@ def single_rollout(model, data, initial_state, **kwargs):
 
   mujoco.mj_resetData(model, data)
   for t in range(nstep):
-    kwargs_t = {}
-    for key, value in kwargs.items():
-      kwargs_t[key] = value[0 if value.ndim == 1 else t]
+    kwargs_t = {
+        key: value[0 if value.ndim == 1 else t]
+        for key, value in kwargs.items()
+    }
     state[t], sensordata[t] = step(model, data,
                                    initial_state if t==0 else None,
                                    **kwargs_t)
@@ -470,7 +471,7 @@ def single_rollout(model, data, initial_state, **kwargs):
 
 def multi_rollout(model, data, initial_state, **kwargs):
   nstate = initial_state.shape[0]
-  arg_nstep = set([a.shape[1] for a in kwargs.values()])
+  arg_nstep = {a.shape[1] for a in kwargs.values()}
   assert len(arg_nstep) == 1  # nstep dimensions must match
   nstep = arg_nstep.pop()
 

@@ -40,9 +40,10 @@ def _parse_qualifiers(
         ValueError('duplicate qualifier: {part!r}')
     else:
       non_qualifiers.append(part)
-  is_qualifier = dict()
-  for qualifier in qualifiers:
-    is_qualifier[f'is_{qualifier}'] = bool(counter[qualifier])
+  is_qualifier = {
+      f'is_{qualifier}': bool(counter[qualifier])
+      for qualifier in qualifiers
+  }
   return ' '.join(non_qualifiers), is_qualifier
 
 
@@ -51,16 +52,14 @@ def _parse_maybe_array(
                                                    ast_nodes.PointerType]]
 ) -> Union[ast_nodes.ValueType, ast_nodes.PointerType, ast_nodes.ArrayType]:
   """Internal-only helper that parses a type that may be an array type."""
-  array_match = ARRAY_EXTENTS_PATTERN.search(type_name)
-  if array_match:
-    extents = tuple(
-        int(s.strip()) for s in ARRAY_N_PATTERN.findall(array_match.group(0)))
-    inner_type_str = type_name[:array_match.start()]
-    return ast_nodes.ArrayType(
-        inner_type=_parse_maybe_pointer(inner_type_str.strip(), innermost_type),
-        extents=extents)
-  else:
+  if not (array_match := ARRAY_EXTENTS_PATTERN.search(type_name)):
     return _parse_maybe_pointer(type_name, innermost_type)
+  extents = tuple(
+      int(s.strip()) for s in ARRAY_N_PATTERN.findall(array_match.group(0)))
+  inner_type_str = type_name[:array_match.start()]
+  return ast_nodes.ArrayType(
+      inner_type=_parse_maybe_pointer(inner_type_str.strip(), innermost_type),
+      extents=extents)
 
 
 def _parse_maybe_pointer(
@@ -75,8 +74,7 @@ def _parse_maybe_pointer(
     if leftover:
       raise ValueError('invalid qualifier for pointer: {leftover!r}')
 
-    inner_type_str = type_name[:p].strip()
-    if inner_type_str:
+    if inner_type_str := type_name[:p].strip():
       inner_type = _parse_maybe_pointer(inner_type_str, innermost_type)
     else:
       assert innermost_type is not None
@@ -112,14 +110,13 @@ def _peel_nested_parens(input_str: str) -> MutableSequence[str]:
 
   if start == -1 and end == -1:
     return [input_str]
-  else:
-    # Assertions to be re-raised into a meaningful error by the caller.
-    assert start != -1  # '(' should be present if there is a ')'
-    assert end != -1  # ')' should be present if there is a '('
-    assert start < end  # '(' should come before ')'
-    out = _peel_nested_parens(input_str[start + 1:end])
-    out.append(input_str[:start] + input_str[end + 1:])
-    return out
+  # Assertions to be re-raised into a meaningful error by the caller.
+  assert start != -1  # '(' should be present if there is a ')'
+  assert end != -1  # ')' should be present if there is a '('
+  assert start < end  # '(' should come before ')'
+  out = _peel_nested_parens(input_str[start + 1:end])
+  out.append(input_str[:start] + input_str[end + 1:])
+  return out
 
 
 def parse_type(
